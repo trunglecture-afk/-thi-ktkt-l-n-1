@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề Ôn Tập Chuyên Đề Lần 1 - Toán 10</title>
+    <!-- MathJax để render công thức toán học -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0056b3;
+            --primary-light: #e6f0fa;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --text-main: #333;
+            --text-muted: #666;
+            --bg-gray: #f8f9fa;
+            --border: #dee2e6;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; background-color: var(--bg-gray); color: var(--text-main); line-height: 1.6; }
+        
+        /* Header & Timer */
+        header {
+            background: #fff; padding: 15px 30px; display: flex; justify-content: space-between;
+            align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;
+        }
+        .logo h1 { margin: 0; font-size: 20px; color: var(--primary); text-transform: uppercase; letter-spacing: 1px;}
+        .timer-box {
+            background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 8px;
+            font-size: 20px; font-weight: bold; font-variant-numeric: tabular-nums;
+            transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,86,179,0.2);
+        }
+        .timer-box.warning { background: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Layout */
+        .container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 20px; height: calc(100vh - 100px); }
+        
+        /* Sidebar */
+        aside {
+            width: 300px; background: #fff; border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow-y: auto; display: flex; flex-direction: column;
+        }
+        .sidebar-title { font-weight: bold; margin-bottom: 15px; color: var(--text-muted); text-transform: uppercase; font-size: 13px; letter-spacing: 1px;}
+        .question-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .q-btn {
+            aspect-ratio: 1; border: 1px solid var(--border); background: #fff; border-radius: 8px;
+            cursor: pointer; font-weight: bold; color: var(--text-muted); transition: all 0.2s;
+        }
+        .q-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .q-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .q-btn.answered { background: var(--primary-light); color: var(--primary); border-color: var(--primary-light); }
+        .q-btn.correct { background: var(--success); color: white; border-color: var(--success); }
+        .q-btn.incorrect { background: var(--danger); color: white; border-color: var(--danger); }
+        
+        .theory-btn {
+            margin-top: auto; padding: 12px; background: var(--bg-gray); border: 1px solid var(--border);
+            border-radius: 8px; cursor: pointer; font-weight: bold; color: var(--text-main); transition: 0.2s;
+        }
+        .theory-btn:hover { background: #e2e6ea; }
+
+        /* Main Content */
+        main {
+            flex: 1; background: #fff; border-radius: 12px; padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow-y: auto; position: relative;
+        }
+        
+        .part-title { font-size: 14px; font-weight: bold; color: var(--primary); text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid var(--primary-light); padding-bottom: 5px;}
+        .question-text { font-size: 18px; font-weight: 500; margin-bottom: 25px; }
+        
+        /* Options */
+        .options { display: flex; flex-direction: column; gap: 15px; }
+        .option-label {
+            display: flex; align-items: center; padding: 15px 20px; border: 2px solid var(--border);
+            border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 16px;
+        }
+        .option-label:hover { border-color: var(--primary); background: var(--primary-light); }
+        .option-label input { display: none; }
+        .option-label.selected { border-color: var(--primary); background: var(--primary-light); }
+        .option-label.correct-ans { border-color: var(--success); background: #d4edda; }
+        .option-label.wrong-ans { border-color: var(--danger); background: #f8d7da; }
+        .option-letter { font-weight: bold; margin-right: 15px; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; background: #eee; border-radius: 50%; }
+        .option-label.selected .option-letter { background: var(--primary); color: white; }
+        
+        /* True/False Grid */
+        .tf-container { display: flex; flex-direction: column; gap: 15px; }
+        .tf-row { display: flex; align-items: center; justify-content: space-between; padding: 15px; border: 1px solid var(--border); border-radius: 8px;}
+        .tf-statement { flex: 1; margin-right: 20px; }
+        .tf-options { display: flex; gap: 20px; font-weight: bold; }
+        .tf-options label { cursor: pointer; display: flex; align-items: center; gap: 5px;}
+
+        /* Short Answer Input */
+        .sa-input {
+            width: 100%; max-width: 300px; padding: 15px; font-size: 18px;
+            border: 2px solid var(--border); border-radius: 8px; outline: none; transition: 0.2s;
+        }
+        .sa-input:focus { border-color: var(--primary); }
+
+        /* Navigation Buttons */
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .btn { padding: 12px 25px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary-light); }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #004494; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #218838; }
+
+        /* Theory Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+            display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+        }
+        .modal-content {
+            background: #fff; padding: 30px; border-radius: 12px; max-width: 800px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-content h2 { color: var(--primary); margin-top: 0; }
+        .theory-section { margin-bottom: 20px; }
+        .theory-section h3 { border-bottom: 2px solid var(--primary-light); padding-bottom: 5px; }
+
+        /* Results Screen */
+        #results-screen { display: none; }
+        .score-card { text-align: center; padding: 40px; background: var(--primary-light); border-radius: 12px; margin-bottom: 30px; }
+        .score-card h1 { font-size: 50px; color: var(--primary); margin: 0 0 10px 0; }
+        .review-section { margin-top: 30px; }
+        .review-item { border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .review-item.correct { border-left: 5px solid var(--success); }
+        .review-item.incorrect { border-left: 5px solid var(--danger); }
+        .review-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; }
+        .explanation-box { background: var(--bg-gray); padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .similar-q-box { background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #ffeeba;}
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <h1>Chuyên Đề Ôn Tập Toán 10 - Lần 1</h1>
+        </div>
+        <div class="timer-box" id="timer">90:00</div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container" id="exam-container">
+        <!-- Sidebar -->
+        <aside>
+            <div class="sidebar-title">Danh sách câu hỏi</div>
+            <div class="question-grid" id="question-grid">
+                <!-- Generated by JS -->
+            </div>
+            <button class="theory-btn" onclick="toggleTheory()">📚 Xem lại Lý thuyết</button>
+        </aside>
+
+        <!-- Main Exam Area -->
+        <main id="question-area">
+            <!-- Questions rendered here -->
+        </main>
+    </div>
+
+    <!-- Results Screen (Hidden initially) -->
+    <div class="container" id="results-screen" style="display: none; height: auto; flex-direction: column;">
+        <div class="score-card">
+            <h1 id="final-score">0.0</h1>
+            <p style="font-size: 20px; margin: 0;">Điểm của bạn (Thang điểm 10)</p>
+        </div>
+        <div class="review-section" id="review-list">
+            <!-- Detailed review generated by JS -->
+        </div>
+        <button class="btn btn-primary" onclick="location.reload()" style="margin: 20px auto; font-size: 18px; padding: 15px 40px;">Làm lại bài thi</button>
+    </div>
+
+    <!-- Theory Modal -->
+    <div class="modal-overlay" id="theory-modal">
+        <div class="modal-content">
+            <h2>Tóm tắt Lý thuyết trọng tâm</h2>
+            <div class="theory-section">
+                <h3>Chương I: Mệnh đề và tập hợp</h3>
+                <p><strong>Mệnh đề:</strong> Phủ định của \\(\\exists x \\in X, P(x)\\) là \\(\\forall x \\in X, \\overline{P(x)}\\).</p>
+                <p><strong>Tập hợp:</strong> Giao (\\(A \\cap B\\)), Hợp (\\(A \\cup B\\)), Hiệu (\\(A \\setminus B\\)), Phần bù (\\(C_X A\\)). Chú ý biểu diễn trên trục số để tìm tập nghiệm.</p>
+            </div>
+            <div class="theory-section">
+                <h3>Chương II: Bất phương trình bậc nhất hai ẩn</h3>
+                <p>Miền nghiệm của hệ BPT là giao các miền nghiệm của từng BPT. Để tìm max/min của \\(F = ax + by\\) trên một đa giác, ta tính giá trị của \\(F\\) tại các đỉnh của đa giác đó.</p>
+            </div>
+            <div class="theory-section">
+                <h3>Chương III: Hệ thức lượng trong tam giác</h3>
+                <p><strong>Định lý Cosin:</strong> \\(a^2 = b^2 + c^2 - 2bc \\cos A\\)</p>
+                <p><strong>Định lý Sin:</strong> \\(\\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C} = 2R\\)</p>
+                <p><strong>Diện tích:</strong> \\(S = \\frac{1}{2}bc \\sin A = \\frac{abc}{4R} = pr\\)</p>
+            </div>
+            <div class="theory-section">
+                <h3>Chương IV: Vectơ</h3>
+                <p><strong>Quy tắc 3 điểm:</strong> \\(\\vec{AB} + \\vec{BC} = \\vec{AC}\\)</p>
+                <p><strong>Quy tắc hình bình hành:</strong> \\(\\vec{AB} + \\vec{AD} = \\vec{AC}\\) (với ABCD là hình bình hành).</p>
+                <p><strong>Hiệu vectơ:</strong> \\(\\vec{AB} - \\vec{AC} = \\vec{CB}\\)</p>
+            </div>
+            <button class="btn btn-primary" onclick="toggleTheory()" style="width: 100%;">Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DỮ LIỆU ĐỀ THI (Đã chuẩn hóa toàn bộ công thức LaTeX) ---
+        const examData = [
+            // PHẦN I: TRẮC NGHIỆM (1-12)
+            { id: 1, part: 1, type: 'mcq', text: "Cho ba tập hợp \\(A = [-2; 3]\\), \\(B = (0; 5)\\) và \\(C = (-\\infty; 1]\\). Tập hợp \\((A \\cap B) \\cup C\\) là:", options: ["A. \\((-\\infty; 3]\\)", "B. \\((-\\infty; 5)\\)", "C. \\((0; 1]\\)", "D. \\((-\\infty; 3)\\)"], correct: 0, explanation: "\\(A \\cap B = (0; 3]\\). Hợp với \\(C = (-\\infty; 1]\\): vì \\((0; 1] \\subset C\\) nên \\((A \\cap B) \\cup C = (-\\infty; 3]\\) (điểm 3 thuộc \\(A \\cap B\\) nên được lấy).", similar: ["Cho \\(A = [-1; 4]\\), \\(B = (1; 6)\\), \\(C = (-\\infty; 2]\\). Tìm \\((A \\cap B) \\cup C\\).", "Cho \\(A = (-3; 2]\\), \\(B = [0; 5)\\), \\(C = (-\\infty; 1)\\). Tìm \\((A \\cup B) \\cap C\\)."] },
+            { id: 2, part: 1, type: 'mcq', text: "Phủ định của mệnh đề “\\(\\exists x \\in \\mathbb{R}, x^2 - 2x + 3 < 0\\)” là:", options: ["A. \\(\\forall x \\in \\mathbb{R}, x^2 - 2x + 3 \\ge 0\\)", "B. \\(\\forall x \\in \\mathbb{R}, x^2 - 2x + 3 > 0\\)", "C. \\(\\exists x \\in \\mathbb{R}, x^2 - 2x + 3 \\ge 0\\)", "D. \\(\\exists x \\in \\mathbb{R}, x^2 - 2x + 3 > 0\\)"], correct: 0, explanation: "Phủ định của \\(\\exists\\) là \\(\\forall\\) và phủ định của “< 0” là “\\(\\ge 0\\)”.", similar: ["Phủ định mệnh đề: \\(\\exists x \\in \\mathbb{Q}, x^2 = 2\\).", "Phủ định mệnh đề: \\(\\forall x \\in \\mathbb{R}, x^2 + x + 1 > 0\\)."] },
+            { id: 3, part: 1, type: 'mcq', text: "Cho hai tập hợp \\(A = (-3; 2]\\) và \\(B = [-1; 4]\\). Tập hợp \\(A \\cap B\\) là:", options: ["A. \\((-3; 4)\\)", "B. \\([-1; 2]\\)", "C. \\([-1; 2)\\)", "D. \\((-1; 2]\\)"], correct: 1, explanation: "Giao của hai tập hợp \\(A\\) và \\(B\\) là \\([-1; 2]\\).", similar: ["Cho \\(A = (-2; 3)\\) và \\(B = [0; 5]\\). Tìm \\(A \\cap B\\).", "Cho \\(A = (-\\infty; 4]\\) và \\(B = (1; +\\infty)\\). Tìm \\(A \\cap B\\)."] },
+            { id: 4, part: 1, type: 'mcq', text: "Cho \\(A = \\{1; 2; 3; 4; 5; 6\\}\\) và \\(B = \\{x \\in \\mathbb{N} | x \\text{ là ước của } 6\\}\\). Tập hợp \\(A \\setminus B\\) là:", options: ["A. \\(\\{1; 2; 3; 6\\}\\)", "B. \\(\\{4; 5; 6\\}\\)", "C. \\(\\{4; 5\\}\\)", "D. \\(\\{1; 2; 3; 4; 5\\}\\)"], correct: 2, explanation: "\\(B = \\{1; 2; 3; 6\\}\\) nên \\(A \\setminus B = \\{4; 5\\}\\).", similar: ["Cho \\(A = \\{1; 2; 3; 4\\}\\), \\(B = \\{x \\in \\mathbb{N} | x \\text{ là ước của } 8\\}\\). Tìm \\(A \\setminus B\\).", "Cho \\(A = \\{-2; -1; 0; 1; 2\\}\\), \\(B = \\{-1; 1\\}\\). Tìm \\(A \\setminus B\\)."] },
+            { id: 5, part: 1, type: 'mcq', text: "Cặp số \\((x; y)\\) nào sau đây là nghiệm của bất phương trình \\(x - 2y + 4 > 0\\)?", options: ["A. \\((-4; 0)\\)", "B. \\((2; 3)\\)", "C. \\((1; 3)\\)", "D. \\((0; 0)\\)"], correct: 3, explanation: "Thay \\((0;0): 0-0+4=4>0\\) (đúng). Các cặp còn lại cho giá trị \\( \\le 0 \\).", similar: ["Cặp số nào là nghiệm của BPT \\(2x - y + 1 < 0\\)?", "Cặp số nào là nghiệm của BPT \\(3x + y - 2 \\ge 0\\)?"] },
+            { id: 6, part: 1, type: 'mcq', text: "Phần tô màu (kể cả biên) trong hình vẽ bên là miền nghiệm của hệ bất phương trình nào? (Giả sử hình chữ nhật có đỉnh (4;0) và (0;2))", options: ["A. \\(x \\ge 0; y \\ge 0; 2x + y \\le 4\\)", "B. \\(x \\ge 0; y \\ge 0; x + 2y \\le 4\\)", "C. \\(x \\ge 0; y \\ge 0; x + 2y \\ge 4\\)", "D. \\(x \\le 0; y \\le 0; x + 2y \\le 4\\)"], correct: 1, explanation: "Miền tô màu nằm trong góc phần tư thứ nhất, bị chặn bởi đường thẳng đi qua \\((4; 0)\\) và \\((0; 2)\\) có phương trình \\(x + 2y = 4\\); gốc O thỏa mãn \\(\\le 4\\).", similar: ["Miền nghiệm nằm ở góc phần tư thứ nhất, bị chặn bởi đường thẳng qua \\((3;0)\\) và \\((0;3)\\) (kể cả biên).", "Miền nghiệm nằm ở góc phần tư thứ nhất, bị chặn bởi đường thẳng \\(2x + 3y = 6\\) (kể cả biên)."] },
+            { id: 7, part: 1, type: 'mcq', text: "Cho \\(\\sin \\alpha = \\frac{3}{5}\\) với \\(90^\\circ < \\alpha < 180^\\circ\\). Giá trị của \\(\\cos \\alpha\\) bằng:", options: ["A. \\(-\\frac{4}{5}\\)", "B. \\(\\frac{4}{5}\\)", "C. \\(\\pm\\frac{4}{5}\\)", "D. \\(-\\frac{3}{4}\\)"], correct: 0, explanation: "Vì \\(\\alpha\\) tù nên \\(\\cos \\alpha < 0\\), \\(\\cos^2 \\alpha = 1 - \\sin^2 \\alpha = \\frac{16}{25} \\Rightarrow \\cos \\alpha = -\\frac{4}{5}\\).", similar: ["Cho \\(\\cos \\alpha = -\\frac{5}{13}\\) và \\(180^\\circ < \\alpha < 270^\\circ\\). Tính \\(\\sin \\alpha\\).", "Cho \\(\\tan \\alpha = -2\\) và \\(90^\\circ < \\alpha < 180^\\circ\\). Tính \\(\\cos \\alpha\\)."] },
+            { id: 8, part: 1, type: 'mcq', text: "Cho tam giác \\(ABC\\) có \\(AB = 5\\), \\(AC = 8\\) và \\(\\hat{A} = 60^\\circ\\). Độ dài cạnh \\(BC\\) bằng:", options: ["A. \\(\\sqrt{89}\\)", "B. \\(\\sqrt{129}\\)", "C. \\(7\\)", "D. \\(49\\)"], correct: 2, explanation: "Định lý Cosin: \\(BC^2 = 5^2 + 8^2 - 2 \\cdot 5 \\cdot 8 \\cdot \\cos 60^\\circ = 25 + 64 - 40 = 49 \\Rightarrow BC = 7\\).", similar: ["Tam giác \\(ABC\\) có \\(AB=2, AC=3, \\hat{A}=120^\\circ\\). Tính \\(BC\\).", "Tam giác \\(ABC\\) có \\(AB=4, BC=5, \\hat{B}=60^\\circ\\). Tính \\(AC\\)."] },
+            { id: 9, part: 1, type: 'mcq', text: "Cho tam giác \\(ABC\\) có \\(\\hat{A} = 45^\\circ\\), \\(\\hat{B} = 60^\\circ\\) và \\(BC = 4\\). Độ dài cạnh \\(AC\\) bằng:", options: ["A. \\(2\\sqrt{3}\\)", "B. \\(4\\sqrt{2}\\)", "C. \\(6\\)", "D. \\(2\\sqrt{6}\\)"], correct: 3, explanation: "Định lí sin: \\(\\frac{AC}{\\sin B} = \\frac{BC}{\\sin A} \\Rightarrow AC = \\frac{4 \\sin 60^\\circ}{\\sin 45^\\circ} = 2\\sqrt{6}\\).", similar: ["Tam giác \\(ABC\\) có \\(\\hat{A} = 30^\\circ, \\hat{C} = 45^\\circ, AB=6\\). Tính \\(BC\\).", "Tam giác \\(ABC\\) có \\(\\hat{B}=60^\\circ, \\hat{C}=45^\\circ, AC=4\\). Tính \\(AB\\)."] },
+            { id: 10, part: 1, type: 'mcq', text: "Cho hình bình hành \\(ABCD\\) có tâm \\(O\\). Vectơ nào sau đây bằng vectơ \\(\\vec{OA}\\)?", options: ["A. \\(\\vec{OC}\\)", "B. \\(\\vec{AO}\\)", "C. \\(\\vec{CO}\\)", "D. \\(\\vec{OB}\\)"], correct: 2, explanation: "\\(O\\) là trung điểm \\(AC\\) nên \\(\\vec{CO} = \\vec{OA}\\) (cùng hướng, cùng độ dài).", similar: ["Cho hình bình hành \\(ABCD\\) tâm \\(O\\). Vectơ nào bằng \\(\\vec{OB}\\)?", "Cho hình bình hành \\(ABCD\\) tâm \\(O\\). Vectơ nào bằng \\(\\vec{AB}\\)?"] },
+            { id: 11, part: 1, type: 'mcq', text: "Với bốn điểm \\(A, B, C, D\\) bất kì, vectơ \\(\\vec{AB} + \\vec{CD} + \\vec{BC}\\) bằng:", options: ["A. \\(\\vec{AC}\\)", "B. \\(\\vec{AD}\\)", "C. \\(\\vec{BD}\\)", "D. \\(\\vec{DA}\\)"], correct: 1, explanation: "\\(\\vec{AB} + \\vec{CD} + \\vec{BC} = (\\vec{AB} + \\vec{BC}) + \\vec{CD} = \\vec{AC} + \\vec{CD} = \\vec{AD}\\).", similar: ["Rút gọn: \\(\\vec{MA} + \\vec{BN} + \\vec{AB}\\).", "Rút gọn: \\(\\vec{CD} + \\vec{EF} + \\vec{DE}\\)."] },
+            { id: 12, part: 1, type: 'mcq', text: "Cho tam giác \\(ABC\\) đều cạnh \\(a\\), \\(M\\) là trung điểm của \\(BC\\). Độ dài của vectơ \\(\\vec{AB} + \\vec{AC}\\) bằng:", options: ["A. \\(a\\)", "B. \\(\\frac{a\\sqrt{3}}{2}\\)", "C. \\(2a\\)", "D. \\(a\\sqrt{3}\\)"], correct: 3, explanation: "\\(\\vec{AB} + \\vec{AC} = 2\\vec{AM}\\), mà \\(AM = \\frac{a\\sqrt{3}}{2}\\) nên độ dài bằng \\(a\\sqrt{3}\\).", similar: ["Tam giác \\(ABC\\) vuông tại \\(A\\), \\(AB=3, AC=4\\). Tính \\(|\\vec{AB} + \\vec{AC}|\\).", "Tam giác \\(ABC\\) đều cạnh \\(2a\\), \\(M\\) là trung điểm \\(BC\\). Tính \\(|\\vec{MB} + \\vec{MC}|\\)."] },
+
+            // PHẦN II: ĐÚNG SAI (13-16)
+            { id: 13, part: 2, type: 'tf', text: "Cho các tập hợp \\(A = \\{x \\in \\mathbb{R} \\mid x^2 - 5x + 6 = 0\\}\\), \\(B = \\{x \\in \\mathbb{N}^* \\mid x \\le 4\\}\\) và \\(C = (1; 3]\\). Xét tính đúng sai các mệnh đề sau:", 
+              statements: ["a) Tập hợp \\(A = \\{2; 3\\}\\).", "b) Tập hợp \\(B \\setminus A = \\{1; 3; 4\\}\\).", "c) \\(A \\cap C = \\{2; 3\\}\\).", "d) Phần bù của \\(C\\) trong \\(\\mathbb{R}\\) là \\(\\mathbb{R} \\setminus C = (-\\infty; 1) \\cup (3; +\\infty)\\)."],
+              correct: [true, false, true, false],
+              explanation: "a) Đúng. b) Sai: \\(B=\\{1;2;3;4\\}\\), \\(B \\setminus A = \\{1; 4\\}\\). c) Đúng. d) Sai: \\(\\mathbb{R} \\setminus C = (-\\infty; 1] \\cup (3; +\\infty)\\).",
+              similar: ["Cho \\(A=\\{1;2\\}, B=\\{2;3;4\\}, C=(1;3]\\). Đúng/Sai: a) \\(A \\cup B = \\{1;2;3;4\\}\\), b) \\(A \\cap B = \\emptyset\\), c) \\(B \\setminus C = \\{4\\}\\).", "Xét tính Đ/S của \\(A=(-1;2], B=[1;3)\\): a) \\(A \\cap B = [1;2]\\), b) \\(A \\cup B = (-1;3)\\)."] },
+            { id: 14, part: 2, type: 'tf', text: "Cho hệ bất phương trình \\( \\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ x + y \\le 5 \\\\ x + 2y \\le 8 \\end{cases} \\) (I). Xét tính đúng sai:", 
+              statements: ["a) Cặp số \\((1; 2)\\) là một nghiệm của hệ (I).", "b) Cặp số \\((4; 2)\\) là một nghiệm của hệ (I).", "c) Miền nghiệm của hệ (I) là tứ giác có các đỉnh \\(O(0; 0)\\), \\((5; 0)\\), \\((2; 3)\\), \\((0; 4)\\).", "d) Biểu thức \\(F = 3x + 2y\\) đạt giá trị lớn nhất trên miền nghiệm của hệ (I) bằng \\(15\\)."],
+              correct: [true, false, true, true],
+              explanation: "a) \\(1+2=3 \\le 5\\), \\(1+4=5 \\le 8\\): Đúng. b) \\(4+2=6 > 5\\): Sai. c) Đúng. d) \\(F(5;0)=15, F(2;3)=12, F(0;4)=8\\), Max = 15: Đúng.",
+              similar: ["Hệ BPT: \\(x \\ge 0, y \\ge 0, x+y \\le 4, 2x+y \\le 6\\). Xét tính Đ/S: a) \\((1;1)\\) là nghiệm, b) \\((3;0)\\) là nghiệm, c) Max \\(F=2x+3y\\) là 12.", "Hệ BPT: \\(x \\ge 1, y \\ge 0, x+y \\le 5, x-y \\le 3\\). Xét tính Đ/S: a) \\((2;2)\\) là nghiệm, b) \\((0;0)\\) là nghiệm."] },
+            { id: 15, part: 2, type: 'tf', text: "Cho tam giác \\(ABC\\) có \\(AB = 3\\), \\(AC = 5\\), \\(BC = 7\\). Xét tính đúng sai:", 
+              statements: ["a) Góc \\(\\hat{A} = 60^\\circ\\).", "b) \\(\\cos A = -\\frac{1}{2}\\).", "c) Diện tích tam giác \\(ABC\\) bằng \\(\\frac{15\\sqrt{3}}{4}\\).", "d) Bán kính đường tròn ngoại tiếp tam giác \\(ABC\\) bằng \\(\\frac{7\\sqrt{3}}{6}\\)."],
+              correct: [false, true, true, false],
+              explanation: "\\(\\cos A = \\frac{3^2+5^2-7^2}{2 \\cdot 3 \\cdot 5} = -\\frac{1}{2} \\Rightarrow \\hat{A} = 120^\\circ\\) (a Sai, b Đúng). \\(S = \\frac{1}{2} \\cdot 3 \\cdot 5 \\cdot \\sin 120^\\circ = \\frac{15\\sqrt{3}}{4}\\) (c Đúng). \\(R = \\frac{BC}{2\\sin A} = \\frac{7}{\\sqrt{3}} = \\frac{7\\sqrt{3}}{3}\\) (d Sai).",
+              similar: ["Tam giác \\(ABC\\) có \\(a=6, b=8, c=10\\). Xét tính Đ/S: a) Tam giác vuông tại \\(C\\), b) \\(R=5\\), c) \\(r=2\\).", "Tam giác \\(ABC\\) có \\(AB=4, AC=6, BC=8\\). Xét tính Đ/S: a) \\(\\cos A = 1/4\\), b) \\(S = \\sqrt{15}\\) hay không?"] },
+            { id: 16, part: 2, type: 'tf', text: "Cho hình thoi \\(ABCD\\) cạnh \\(a\\), có \\(\\widehat{BAD} = 60^\\circ\\), tâm \\(O\\). Xét tính đúng sai:", 
+              statements: ["a) \\(\\overrightarrow{AB} = \\overrightarrow{BC}\\).", "b) \\(\\overrightarrow{AB} + \\overrightarrow{AD} = \\overrightarrow{AC}\\).", "c) \\(|\\overrightarrow{AC}| = a\\).", "d) \\(|\\overrightarrow{AB} - \\overrightarrow{AD}| = a\\)."],
+              correct: [false, true, false, true],
+              explanation: "Tam giác \\(ABD\\) đều nên \\(BD=a\\), \\(AC = a\\sqrt{3}\\). a) Sai (ngược hướng). b) Đúng. c) Sai (\\(AC=a\\sqrt{3}\\)). d) Đúng: \\(|\\vec{AB} - \\vec{AD}| = |\\vec{DB}| = a\\).",
+              similar: ["Hình vuông \\(ABCD\\) cạnh \\(a\\). Đ/S: a) \\(|\\vec{AB} + \\vec{AD}| = a\\sqrt{2}\\), b) \\(|\\vec{AB} - \\vec{AD}| = a\\).", "Hình thoi \\(ABCD\\) góc \\(A=120^\\circ\\), cạnh \\(a\\). Đ/S: a) \\(AC = a\\), b) \\(BD = a\\sqrt{3}\\)."] },
+
+            // PHẦN III: TRẢ LỜI NGẮN (17-22)
+            { id: 17, part: 3, type: 'sa', text: "Lớp 10B có \\(45\\) học sinh. Trong đó có \\(28\\) học sinh thích bóng đá, \\(19\\) học sinh thích cầu lông và \\(12\\) học sinh thích cả hai môn. Hỏi có bao nhiêu học sinh của lớp chỉ thích đúng một trong hai môn trên?", correct: "23", explanation: "Chỉ thích bóng đá: \\(28-12=16\\); chỉ thích cầu lông: \\(19-12=7\\). Vậy \\(16+7=23\\) học sinh.", similar: ["Lớp có 40 HS, 25 thích Toán, 20 thích Lý, 10 thích cả hai. Hỏi có bao nhiêu HS chỉ thích đúng một môn?", "Lớp có 50 HS, 30 thích Văn, 25 thích Sử, 15 thích cả hai. Hỏi có bao nhiêu HS không thích môn nào?"] },
+            { id: 18, part: 3, type: 'sa', text: "Một tiệm bánh làm hai loại bánh I và II. Mỗi chiếc bánh loại I cần 200 g bột và 1 quả trứng; mỗi chiếc bánh loại II cần 100 g bột và 2 quả trứng. Tiệm chỉ có 1400 g bột và 16 quả trứng. Mỗi chiếc bánh loại I lãi 30 nghìn đồng, mỗi chiếc bánh loại II lãi 40 nghìn đồng. Tính số tiền lãi lớn nhất tiệm có thể thu được (đơn vị: nghìn đồng).", correct: "360", explanation: "Gọi \\(x, y\\) là số bánh loại I, II. Hệ BPT: \\(2x+y \\le 14\\); \\(x+2y \\le 16\\); \\(x, y \\ge 0\\). Lãi \\(F=30x+40y\\). Các đỉnh: \\((0;0), (7;0), (4;6), (0;8)\\). Max \\(F = 360\\) tại \\((4;6)\\).", similar: ["Một xưởng sản xuất bàn và ghế. Bàn cần 2 gỗ, 1 công. Ghế cần 1 gỗ, 2 công. Có 10 gỗ, 10 công. Lãi bàn 40k, ghế 30k. Tìm lãi lớn nhất.", "Cửa hàng bán áo và quần. Áo cần 1m vải, 2 giờ. Quần cần 2m vải, 1 giờ. Có 10m vải, 10 giờ. Lãi áo 50k, quần 60k. Tìm lãi lớn nhất."] },
+            { id: 19, part: 3, type: 'sa', text: "Hai tàu thủy cùng rời cảng A, đi thẳng theo hai hướng tạo với nhau góc \\(120^\\circ\\). Tàu thứ nhất chạy với vận tốc \\(25\\) km/h, tàu thứ hai chạy với vận tốc \\(35\\) km/h. Hỏi sau 2 giờ, hai tàu cách nhau bao nhiêu ki-lô-mét? (làm tròn kết quả đến hàng phần mười)", correct: "104.4", explanation: "Sau 2 giờ: \\(AB = 50\\) km, \\(AC = 70\\) km. \\(BC^2 = 50^2 + 70^2 - 2 \\cdot 50 \\cdot 70 \\cdot \\cos 120^\\circ = 10900 \\Rightarrow BC \\approx 104,4\\) km.", similar: ["Hai xe xuất phát từ A, góc 60 độ. Vận tốc 40km/h và 50km/h. Sau 1.5h cách nhau bao nhiêu?", "Hai người đi từ A, góc 45 độ. Vận tốc 10km/h và 15km/h. Sau 2h cách nhau bao nhiêu?"] },
+            { id: 20, part: 3, type: 'sa', text: "Để đo chiều cao CD của một tòa tháp (D là chân tháp), người ta chọn hai điểm A, B trên mặt đất sao cho B, A, D thẳng hàng, A nằm giữa B và D, \\(AB = 40\\) m. Từ A nhìn đỉnh tháp C với góc nâng \\(45^\\circ\\), từ B nhìn đỉnh tháp C với góc nâng \\(30^\\circ\\). Tính chiều cao tòa tháp (đơn vị: mét, làm tròn kết quả đến hàng đơn vị).", correct: "55", explanation: "Đặt \\(h = CD\\). \\(AD = h\\) (do tam giác ACD vuông cân). Tam giác BCD: \\(\\tan 30^\\circ = \\frac{h}{h+40} \\Rightarrow h \\approx 54,6 \\approx 55\\) m.", similar: ["Từ A nhìn đỉnh tháp góc 60 độ, từ B (cách A 20m, gần tháp hơn) nhìn góc 75 độ. Tính chiều cao tháp.", "Từ A nhìn đỉnh tháp góc 30 độ, từ B (cách A 50m, xa tháp hơn) nhìn góc 15 độ. Tính chiều cao tháp."] },
+            { id: 21, part: 3, type: 'sa', text: "Một vật đặt tại điểm O chịu tác dụng của hai lực \\(F_1\\) và \\(F_2\\) có cường độ lần lượt là \\(50\\) N và \\(30\\) N, hai lực này hợp với nhau một góc \\(120^\\circ\\). Tính cường độ của hợp lực \\(F = F_1 + F_2\\) (đơn vị: Niutơn, làm tròn kết quả đến hàng phần mười).", correct: "43.6", explanation: "Dựng hình bình hành OF1FF2; góc F1OF2 = 120° nên OF1F = 60°. \\(F^2 = 50^2 + 30^2 - 2 \\cdot 50 \\cdot 30 \\cdot \\cos 60^\\circ = 1900 \\Rightarrow F = \\sqrt{1900} \\approx 43,6\\) N.", similar: ["Hai lực 40N và 30N hợp nhau góc 90 độ. Tính hợp lực.", "Hai lực 60N và 20N hợp nhau góc 120 độ. Tính hợp lực."] },
+            { id: 22, part: 3, type: 'sa', text: "Cho hình chữ nhật \\(ABCD\\) có \\(AB = 6\\), \\(AD = 8\\). Tính độ dài của vectơ \\(\\overrightarrow{AB} + \\overrightarrow{AC} + \\overrightarrow{AD}\\).", correct: "20", explanation: "\\(\\vec{AB} + \\vec{AD} = \\vec{AC}\\) nên \\(\\vec{AB} + \\vec{AC} + \\vec{AD} = 2\\vec{AC}\\). \\(AC = \\sqrt{6^2 + 8^2} = 10 \\Rightarrow\\) độ dài bằng \\(20\\).", similar: ["Hình chữ nhật \\(ABCD\\) có \\(AB=3, AD=4\\). Tính \\(|\\vec{AB} + \\vec{AC} + \\vec{AD}|\\).", "Hình vuông \\(ABCD\\) cạnh \\(a\\). Tính \\(|\\vec{AB} + \\vec{AC} + \\vec{AD}|\\)."] },
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let currentQuestionIndex = 0;
+        let userAnswers = {}; // { qId: { value: string/array, isAnswered: bool } }
+        let timeLeft = 90 * 60; // 90 phút
+        let timerInterval;
+        let examSubmitted = false;
+
+        // --- DOM ELEMENTS ---
+        const questionGrid = document.getElementById('question-grid');
+        const questionArea = document.getElementById('question-area');
+        const timerDisplay = document.getElementById('timer');
+        const examContainer = document.getElementById('exam-container');
+        const resultsScreen = document.getElementById('results-screen');
+
+        // --- INITIALIZATION ---
+        function init() {
+            renderSidebar();
+            renderQuestion();
+            startTimer();
+        }
+
+        function renderSidebar() {
+            questionGrid.innerHTML = '';
+            examData.forEach((q, index) => {
+                const btn = document.createElement('button');
+                btn.className = `q-btn ${index === 0 ? 'active' : ''}`;
+                btn.innerText = q.id;
+                btn.onclick = () => jumpToQuestion(index);
+                questionGrid.appendChild(btn);
+            });
+        }
+
+        function updateSidebarStatus() {
+            const btns = questionGrid.querySelectorAll('.q-btn');
+            examData.forEach((q, index) => {
+                if (userAnswers[q.id] && userAnswers[q.id].isAnswered) {
+                    if (index !== currentQuestionIndex) {
+                        btns[index].classList.add('answered');
+                    }
+                }
+            });
+        }
+
+        function renderQuestion() {
+            const q = examData[currentQuestionIndex];
+            const currentAnswer = userAnswers[q.id] || { value: null, isAnswered: false };
+            
+            // Header Info
+            let partName = q.part === 1 ? "PHẦN I: TRẮC NGHIỆM" : (q.part === 2 ? "PHẦN II: ĐÚNG - SAI" : "PHẦN III: TRẢ LỜI NGẮN");
+            let html = `<div class="part-title">${partName} - Câu ${q.id}</div>`;
+            html += `<div class="question-text">${q.text}</div>`;
+
+            // Render based on type
+            if (q.type === 'mcq') {
+                html += `<div class="options">`;
+                q.options.forEach((opt, i) => {
+                    const isSelected = currentAnswer.value === i;
+                    html += `
+                        <label class="option-label ${isSelected ? 'selected' : ''}">
+                            <input type="radio" name="q${q.id}" value="${i}" ${isSelected ? 'checked' : ''} onchange="selectMCQ(${q.id}, ${i})">
+                            <div class="option-letter">${String.fromCharCode(65 + i)}</div>
+                            <div>${opt}</div>
+                        </label>
+                    `;
+                });
+                html += `</div>`;
+            } 
+            else if (q.type === 'tf') {
+                html += `<div class="tf-container">`;
+                q.statements.forEach((stmt, i) => {
+                    let val = currentAnswer.value ? currentAnswer.value[i] : null;
+                    html += `
+                        <div class="tf-row">
+                            <div class="tf-statement">${stmt}</div>
+                            <div class="tf-options">
+                                <label><input type="radio" name="tf_${q.id}_${i}" value="true" ${val === true ? 'checked' : ''} onchange="selectTF(${q.id}, ${i}, true)"> Đúng</label>
+                                <label><input type="radio" name="tf_${q.id}_${i}" value="false" ${val === false ? 'checked' : ''} onchange="selectTF(${q.id}, ${i}, false)"> Sai</label>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            } 
+            else if (q.type === 'sa') {
+                const val = currentAnswer.value || '';
+                html += `
+                    <div>
+                        <input type="text" class="sa-input" id="sa-input" placeholder="Nhập đáp án..." value="${val}" oninput="selectSA(${q.id}, this.value)">
+                    </div>
+                `;
+            }
+
+            // Navigation
+            html += `
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" onclick="prevQuestion()" ${currentQuestionIndex === 0 ? 'disabled style="opacity:0.5"' : ''}>← Câu trước</button>
+                    ${currentQuestionIndex === examData.length - 1 
+                        ? `<button class="btn btn-success" onclick="submitExam()">Hoàn thành bài thi</button>` 
+                        : `<button class="btn btn-primary" onclick="nextQuestion()">Câu tiếp theo →</button>`}
+                </div>
+            `;
+
+            questionArea.innerHTML = html;
+            
+            // MathJax typesetting
+            MathJax.typesetPromise([questionArea]).catch((err) => console.log(err));
+        }
+
+        // --- INTERACTION LOGIC ---
+        function selectMCQ(qId, optionIndex) {
+            userAnswers[qId] = { value: optionIndex, isAnswered: true };
+            updateSidebarStatus();
+            renderQuestion(); // Re-render to show selection
+        }
+
+        function selectTF(qId, statementIndex, value) {
+            if (!userAnswers[qId] || !userAnswers[qId].value) {
+                userAnswers[qId] = { value: [null, null, null, null], isAnswered: false };
+            }
+            userAnswers[qId].value[statementIndex] = value;
+            // Check if all 4 answered
+            userAnswers[qId].isAnswered = userAnswers[qId].value.every(v => v !== null);
+            updateSidebarStatus();
+            renderQuestion();
+        }
+
+        function selectSA(qId, value) {
+            userAnswers[qId] = { value: value, isAnswered: value.trim() !== '' };
+            updateSidebarStatus();
+        }
+
+        function jumpToQuestion(index) {
+            document.querySelectorAll('.q-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.q-btn')[index].classList.add('active');
+            currentQuestionIndex = index;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < examData.length - 1) {
+                jumpToQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                jumpToQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        // --- TIMER ---
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                // Warning at 15 minutes (900 seconds)
+                if (timeLeft === 15 * 60) {
+                    timerDisplay.classList.add('warning');
+                    alert("⚠️ Thông báo: Bạn còn 15 phút để hoàn thành bài thi!");
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("⏰ Đã hết giờ làm bài! Hệ thống tự động thu bài.");
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            timerDisplay.innerText = `${m}:${s}`;
+        }
+
+        // --- SUBMIT & SCORING ---
+        function submitExam() {
+            if (examSubmitted) return;
+            if (!confirm("Bạn có chắc chắn muốn nộp bài? Hãy kiểm tra lại các câu chưa làm.")) return;
+            
+            examSubmitted = true;
+            clearInterval(timerInterval);
+            examContainer.style.display = 'none';
+            resultsScreen.style.display = 'flex';
+            
+            calculateAndRenderResults();
+        }
+
+        function calculateAndRenderResults() {
+            let totalScore = 0;
+            let reviewHTML = '';
+            
+            examData.forEach((q, index) => {
+                let isCorrect = false;
+                let userAnsDisplay = "Chưa trả lời";
+                let correctAnsDisplay = "";
+                let scoreEarned = 0;
+
+                const userAns = userAnswers[q.id];
+
+                if (q.type === 'mcq') {
+                    correctAnsDisplay = q.options[q.correct];
+                    if (userAns && userAns.value !== null) {
+                        userAnsDisplay = q.options[userAns.value];
+                        if (userAns.value === q.correct) {
+                            isCorrect = true;
+                            scoreEarned = 0.25;
+                        }
+                    }
+                } 
+                else if (q.type === 'tf') {
+                    correctAnsDisplay = q.correct.map(c => c ? "Đúng" : "Sai").join(" - ");
+                    if (userAns && userAns.value) {
+                        userAnsDisplay = userAns.value.map(c => c === null ? "?" : (c ? "Đúng" : "Sai")).join(" - ");
+                        
+                        let correctCount = 0;
+                        for (let i=0; i<4; i++) {
+                            if (userAns.value[i] === q.correct[i]) correctCount++;
+                        }
+                        // Scoring rule: 1 đúng: 0.1, 2 đúng: 0.25, 3 đúng: 0.5, 4 đúng: 1.0
+                        if (correctCount === 1) scoreEarned = 0.1;
+                        else if (correctCount === 2) scoreEarned = 0.25;
+                        else if (correctCount === 3) scoreEarned = 0.5;
+                        else if (correctCount === 4) { scoreEarned = 1.0; isCorrect = true; }
+                    }
+                } 
+                else if (q.type === 'sa') {
+                    correctAnsDisplay = q.correct;
+                    if (userAns && userAns.value) {
+                        userAnsDisplay = userAns.value;
+                        // Parse float for comparison, allow slight rounding differences
+                        let uVal = parseFloat(userAns.value.replace(',', '.'));
+                        let cVal = parseFloat(q.correct);
+                        if (!isNaN(uVal) && Math.abs(uVal - cVal) < 0.01) {
+                            isCorrect = true;
+                            scoreEarned = 0.5;
+                        } else if (userAns.value.trim() === q.correct) { // Exact string match
+                            isCorrect = true;
+                            scoreEarned = 0.5;
+                        }
+                    }
+                }
+
+                totalScore += scoreEarned;
+
+                // Sidebar update on results
+                const btn = document.querySelectorAll('.q-btn')[index];
+                btn.classList.remove('active', 'answered');
+                btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                btn.onclick = () => { /* Disable jumping in result mode */ };
+
+                // Render Review Item
+                let similarHtml = '';
+                if (!isCorrect) {
+                    similarHtml = `
+                        <div class="similar-q-box">
+                            <strong>📝 Bài tập tương tự để luyện tập:</strong>
+                            <ul>
+                                <li>${q.similar[0]}</li>
+                                <li>${q.similar[1]}</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                reviewHTML += `
+                    <div class="review-item ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="review-header">
+                            <span>Câu ${q.id} (${q.type === 'mcq' ? 'Trắc nghiệm' : q.type === 'tf' ? 'Đúng/Sai' : 'Trả lời ngắn'})</span>
+                            <span>${isCorrect ? '✅ Đúng (+' + scoreEarned + 'đ)' : '❌ Sai (0đ)'}</span>
+                        </div>
+                        <div style="margin-bottom:10px;">${q.text}</div>
+                        ${q.type === 'tf' ? `<div style="margin-bottom:10px; font-size:14px; color:#666;">Các ý: ${q.statements.join(' | ')}</div>` : ''}
+                        
+                        <div style="display:flex; gap: 20px; margin-bottom: 10px;">
+                            <div><strong>Bạn chọn:</strong> <span style="color:${isCorrect ? 'var(--success)' : 'var(--danger)'}">${userAnsDisplay}</span></div>
+                            <div><strong>Đáp án đúng:</strong> <span style="color:var(--success)">${correctAnsDisplay}</span></div>
+                        </div>
+                        
+                        <div class="explanation-box">
+                            <strong>💡 Giải thích:</strong> ${q.explanation}
+                        </div>
+                        
+                        ${similarHtml}
+                    </div>
+                `;
+            });
+
+            // Display Score
+            document.getElementById('final-score').innerText = totalScore.toFixed(2);
+            document.getElementById('review-list').innerHTML = reviewHTML;
+            
+            // Re-render MathJax
+            MathJax.typesetPromise([resultsScreen]).catch((err) => console.log(err));
+        }
+
+        // --- THEORY MODAL ---
+        function toggleTheory() {
+            const modal = document.getElementById('theory-modal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+            if(modal.style.display === 'flex') {
+                MathJax.typesetPromise([modal]).catch((err) => console.log(err));
+            }
+        }
+
+        // Start
+        window.onload = init;
+
+    </script>
+</body>
+</html>
